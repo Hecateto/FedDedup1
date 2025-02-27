@@ -14,8 +14,6 @@ from utils import TextDataset, train_client, compute_test_perplexity, get_text_d
 from copy import deepcopy
 
 os.environ["HF_HOME"] = CACHE_PATH
-os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
-
 
 # set all seeds
 torch.manual_seed(SEED)
@@ -104,27 +102,14 @@ if USE_EPMPD:
     # Client datasets are now deduplicated
     for i in range(CLIENTS):
         client_data_list[i] = mpd.get_client_dataset(i)
-        # client_sample_weights[i] = mpd.get_client_sample_weights(i)
-        # label-PSI获取权重
 
 client_datasets = [
-    TextDataset(data=client_data_list[i],
-                tokenizer=tokenizer,
-                # sample_weights=client_sample_weights[i],
-            )
+    TextDataset(data=client_data_list[i], tokenizer=tokenizer)
     for i in range(CLIENTS)
 ]
 
 client_data_loaders = [
-    DataLoader(client_datasets[i],
-               batch_size=BATCH_SIZE,
-               shuffle=True,
-               # collate_fn=lambda batch: (
-               #      torch.stack([x[0] for x in batch]),
-               #      torch.stack([x[1] for x in batch]),
-               #      [x[2] for x in batch],
-               # ),         # 加权
-        )
+    DataLoader(client_datasets[i], batch_size=BATCH_SIZE, shuffle=True)
     for i in range(CLIENTS)
 ]
 
@@ -243,5 +228,3 @@ test_loader = DataLoader(test_set, batch_size=1, shuffle=True)
 ppl = compute_test_perplexity(model, test_loader)
 
 print(f"Test Perplexity: {ppl}")
-
-

@@ -9,7 +9,7 @@ from ep_mpd import MultiPartyDeduplicator, EgPsiType, EgPsiDataType
 import os
 import time
 
-from local_config import *
+from config import *
 from utils_w import TextDataset, train_client, compute_test_perplexity, get_text_dataset
 from copy import deepcopy
 

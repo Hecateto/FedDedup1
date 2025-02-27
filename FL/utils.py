@@ -9,9 +9,6 @@ from transformers import get_linear_schedule_with_warmup
 from torch.nn.utils import clip_grad_norm_
 from datasets import load_dataset, concatenate_datasets
 
-os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
-
-
 device = "cpu"
 if torch.cuda.is_available():
     device = "cuda"
@@ -22,7 +19,7 @@ def jokes_to_list(dataset_path="datasets/"):
 
     joke_list = []
 
-    with open(short_jokes_path, encoding="utf-8") as csv_file:
+    with open(short_jokes_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
 
         for row in csv_reader:
@@ -40,7 +37,7 @@ def imdb_to_list(dataset_path="datasets/"):
 
     imdb_list = []
 
-    with open(imdb_path, encoding="utf-8") as csv_file:
+    with open(imdb_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
 
         for row in csv_reader:
@@ -75,7 +72,7 @@ def haiku_to_list(dataset_path="datasets/"):
 
     haiku_list = []
 
-    with open(haiku_path, encoding="utf-8") as csv_file:
+    with open(haiku_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
 
         for row in csv_reader:
@@ -112,7 +109,7 @@ def sonnets_to_list(dataset_path="datasets/"):
 
     sonnets_list = []
 
-    with open(sonnets_path, encoding="utf-8") as csv_file:
+    with open(sonnets_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
 
         for row in csv_reader:
@@ -131,7 +128,7 @@ def poetry_to_list(dataset_path="datasets/"):
 
     poetry_list = []
 
-    with open(poetry_path, encoding="utf-8") as csv_file:
+    with open(poetry_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
 
         for row in csv_reader:

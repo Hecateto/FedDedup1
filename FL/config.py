@@ -1,5 +1,5 @@
 # LLM to use for training. Any Huggingface CausalLM model can be loaded here but we only test with GPT-2 Medium and Large.
-MODEL_NAME = "gpt2-medium" # "gpt2-large"
+MODEL_NAME = "distilgpt2" # "gpt2-medium" "gpt2-large"
 # Batch size for training
 BATCH_SIZE = 8
 # Learnig rate for AdamW optimizer
@@ -7,11 +7,11 @@ LEARNING_RATE = 5e-5
 # Percentage of duplicated samples among all clients dataset
 DUPLICATE_RATE = 0.3 # between 0.0 and 1.0
 # Max. sequence length for input data
-MAX_SEQ_LEN = 500
+MAX_SEQ_LEN = 400
 # Number of epochs of local training
 EPOCHS = 5
 # No: of clients in FL training
-CLIENTS = 10
+CLIENTS = 2
 # No: of rounds of FL training
 ROUNDS = 5
 # Special end of sentence, beginning of sentence, and pad tokens. This depends on the chosen Huggingface model. Below are the tokens for GPT-2 models.
