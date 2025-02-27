@@ -32,6 +32,10 @@ tokenizer = GPT2Tokenizer.from_pretrained(
 
 model = GPT2LMHeadModel.from_pretrained(MODEL_NAME)
 model.resize_token_embeddings(len(tokenizer))
+if torch.cuda.device_count() > 1:
+    print(f"Using {torch.cuda.device_count()} GPUs!")
+    # 将模型包装为 DataParallel
+    model = torch.nn.DataParallel(model)
 model = model.to(device)
 
 if not os.path.exists(MODEL_PATH):

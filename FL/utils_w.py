@@ -17,7 +17,7 @@ if torch.cuda.is_available():
     device = "cuda"
 
 
-def jokes_to_list(dataset_path="datasets/"):
+def jokes_to_list(dataset_path="/kaggle/input/sonnets/"):
     short_jokes_path = os.path.join(dataset_path, "shortjokes.csv")
 
     joke_list = []
@@ -35,7 +35,7 @@ def jokes_to_list(dataset_path="datasets/"):
     return joke_list[:50000]
 
 
-def imdb_to_list(dataset_path="datasets/"):
+def imdb_to_list(dataset_path="/kaggle/input/sonnets/"):
     imdb_path = os.path.join(dataset_path, "imdb.csv")
 
     imdb_list = []
@@ -52,7 +52,7 @@ def imdb_to_list(dataset_path="datasets/"):
     return imdb_list[:50000]
 
 
-def rotten_to_list(dataset_path="datasets/"):
+def rotten_to_list(dataset_path="/kaggle/input/sonnets/"):
     dataset = load_dataset("rotten_tomatoes")
 
     combined_dataset = concatenate_datasets([dataset["train"], dataset["validation"], dataset["test"]])
@@ -70,7 +70,7 @@ def rotten_to_list(dataset_path="datasets/"):
         return rotten_list[:50000]
 
 
-def haiku_to_list(dataset_path="datasets/"):
+def haiku_to_list(dataset_path="/kaggle/input/sonnets/"):
     haiku_path = os.path.join(dataset_path, "haiku.csv")
 
     haiku_list = []
@@ -90,7 +90,7 @@ def haiku_to_list(dataset_path="datasets/"):
         return haiku_list[:50000]
 
 
-def shakespeare_to_list(dataset_path="datasets/"):
+def shakespeare_to_list(dataset_path="/kaggle/input/sonnets/"):
     dataset = load_dataset("Trelis/tiny-shakespeare")
 
     train_set = dataset["train"]
@@ -107,7 +107,7 @@ def shakespeare_to_list(dataset_path="datasets/"):
     return shakespeare_list[:50000]
 
 
-def sonnets_to_list(dataset_path="datasets/"):
+def sonnets_to_list(dataset_path="/kaggle/input/sonnets/"):
     sonnets_path = os.path.join(dataset_path, "sonnets.csv")
 
     sonnets_list = []
@@ -126,7 +126,7 @@ def sonnets_to_list(dataset_path="datasets/"):
     return sonnets_list[:50000]
 
 
-def poetry_to_list(dataset_path="datasets/"):
+def poetry_to_list(dataset_path="/kaggle/input/sonnets/"):
     poetry_path = os.path.join(dataset_path, "poetry.csv")
 
     poetry_list = []
