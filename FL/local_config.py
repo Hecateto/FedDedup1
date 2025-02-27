@@ -21,10 +21,10 @@ BNB_4BIT_USE_DOUBLE_QUANT = False
 BNB_4BIT_QUANT_TYPE = "nf4"
 
 # 训练参数优化
-BATCH_SIZE = 8
-GRADIENT_ACCUMULATION_STEPS = 8  # 梯度累积步数（等效batch_size=64）
+BATCH_SIZE = 2
+GRADIENT_ACCUMULATION_STEPS = 8  # 梯度累积步数（等效batch_size=16）
 LEARNING_RATE = 5e-5  # Adafactor优化器适用该学习率
-MAX_SEQ_LEN = 256  # 缩短序列长度以适应显存限制
+MAX_SEQ_LEN = 128  # 缩短序列长度以适应显存限制
 
 # LoRA微调参数
 LORA_RANK = 8  # LoRA矩阵秩
