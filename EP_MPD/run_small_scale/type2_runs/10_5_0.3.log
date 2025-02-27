@@ -1,0 +1,124 @@
+EG PSI Type:  EgPsiType.TYPE2
+
+Setup time: 2.13898
+
+Client: 0, Client Setup Time: 0.28989029996228055
+
+Client: 1, Client Setup Time: 0.29654669998490135
+
+Client: 2, Client Setup Time: 0.31209659996966366
+
+Client: 3, Client Setup Time: 0.30937559999802033
+
+Client: 4, Client Setup Time: 0.3028088000319258
+
+Client: 0, TP Setup Time: 0.12184730003900768
+
+Client: 1, TP Setup Time: 0.12345960001584899
+
+Client: 2, TP Setup Time: 0.1277348000294296
+
+Client: 3, TP Setup Time: 0.12900920000174665
+
+Client: 4, TP Setup Time: 0.12620949996926356
+
+
+Current Level:  2
+
+Client: 4
+Send Times:  [0.0]
+
+Client: 4, Client Send Time: 6.000009307172149e-07
+
+Client: 3
+Receive Times:  [0.0]
+
+Client: 3, Client Receive Time: 1.0000003385357559e-06
+
+Send Time of Group 1: 0.0
+
+Receive Time of Group 0: 0.0
+
+Client: 3, Client Deduplicate Time: 0.00015
+
+
+Current Level:  1
+
+Client: 1
+Send Times:  [0.0]
+
+Client: 1, Client Send Time: 1.1000010999850929e-06
+
+Client: 3
+Send Times:  [0.0]
+
+Client: 3, Client Send Time: 5.000001692678779e-07
+
+Client: 4
+Send Times:  [0.0]
+
+Client: 4, Client Send Time: 4.000012268079445e-07
+
+Client: 0
+Receive Times:  [0.0]
+
+Client: 0, Client Receive Time: 1.7999991541728377e-06
+
+Client: 2
+Receive Times:  [0.0, 0.0]
+
+Client: 2, Client Receive Time: 8.999995770864189e-07
+
+Send Time of Group 1: 0.0
+
+Receive Time of Group 0: 0.0
+
+Client: 0, Client Deduplicate Time: 0.00016
+
+Client: 2, Client Deduplicate Time: 0.0003
+
+
+Current Level:  0
+
+Client: 2
+Send Times:  [0.0, 0.0]
+
+Client: 2, Client Send Time: 6.000009307172149e-07
+
+Client: 3
+Send Times:  [0.0, 0.0]
+
+Client: 3, Client Send Time: 5.000001692678779e-07
+
+Client: 4
+Send Times:  [0.0, 0.0]
+
+Client: 4, Client Send Time: 3.9999940781854093e-07
+
+Client: 0
+Receive Times:  [0.0, 0.0, 0.0]
+
+Client: 0, Client Receive Time: 6.999998731771484e-07
+
+Client: 1
+Receive Times:  [0.0, 0.0, 0.0]
+
+Client: 1, Client Receive Time: 7.00001692166552e-07
+
+Send Time of Group 1: 0.0
+
+Receive Time of Group 0: 0.0
+
+Client: 0, Client Deduplicate Time: 0.00045
+
+Client: 1, Client Deduplicate Time: 0.00044
+
+
+Total time for entire protocol: 2.13988
+
+Wall clock time
+Start time:  2025-02-19 15:33:22.214917
+End time:  2025-02-19 15:33:24.505003
+
+Total data with duplicates:  5120
+Total data without duplicates:  4350

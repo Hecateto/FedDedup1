@@ -1,0 +1,108 @@
+EG PSI Type:  EgPsiType.TYPE1
+
+Current Level:  2
+
+Client Encryptions and TP Receive
+
+
+Group 0 clients
+
+Client: 3, Client Encrypt Time: 0.00706
+Client: 3, TP Receive Time: 0.0003
+
+Group 1 clients
+
+Client: 4, Client Encrypt Time: 0.00698
+Client: 4, TP Receive Time: 0.00026
+
+Client Deduplicate and TP Send
+
+
+Client: 3, TP Send Time: 9e-05
+Client: 3, Client Deduplicate Time: 3e-05
+
+Level: 2, Time for entire level: 0.00748
+
+Current Level:  1
+
+Client Encryptions and TP Receive
+
+
+Group 0 clients
+
+Client: 0, Client Encrypt Time: 0.00703
+Client: 0, TP Receive Time: 0.00029
+
+Group 1 clients
+
+Client: 1, Client Encrypt Time: 0.00898
+Client: 1, TP Receive Time: 0.00026
+
+Group 0 clients
+
+Client: 2, Client Encrypt Time: 0.01582
+Client: 2, TP Receive Time: 0.00056
+
+Group 1 clients
+
+Client: 3, Client Encrypt Time: 0.00626
+Client: 3, TP Receive Time: 0.00023
+
+Client: 4, Client Encrypt Time: 0.00677
+Client: 4, TP Receive Time: 0.00025
+
+Client Deduplicate and TP Send
+
+
+Client: 0, TP Send Time: 9e-05
+Client: 0, Client Deduplicate Time: 3e-05
+
+Client: 2, TP Send Time: 0.00074
+Client: 2, Client Deduplicate Time: 0.0001
+
+Level: 1, Time for entire level: 0.01731
+
+Current Level:  0
+
+Client Encryptions and TP Receive
+
+
+Group 0 clients
+
+Client: 0, Client Encrypt Time: 0.01921
+Client: 0, TP Receive Time: 0.00065
+
+Client: 1, Client Encrypt Time: 0.02137
+Client: 1, TP Receive Time: 0.00107
+
+Group 1 clients
+
+Client: 2, Client Encrypt Time: 0.01169
+Client: 2, TP Receive Time: 0.00043
+
+Client: 3, Client Encrypt Time: 0.01304
+Client: 3, TP Receive Time: 0.00048
+
+Client: 4, Client Encrypt Time: 0.01397
+Client: 4, TP Receive Time: 0.00066
+
+Client Deduplicate and TP Send
+
+
+Client: 0, TP Send Time: 0.00026
+Client: 0, Client Deduplicate Time: 9e-05
+
+Client: 1, TP Send Time: 0.00028
+Client: 1, Client Deduplicate Time: 9e-05
+
+Level: 0, Time for entire level: 0.02307
+
+
+Total time for entire protocol: 0.04786
+
+Wall clock time
+Start time:  2025-02-19 15:32:58.116805
+End time:  2025-02-19 15:32:58.274717
+
+Total data with duplicates:  5120
+Total data without duplicates:  4350
