@@ -31,10 +31,10 @@ if torch.cuda.is_available():
 
 # 添加适配器
 class Adapter(nn.Module):
-    def __init__(self, dim):
+    def __init__(self, dim, reduction_factor=8):
         super().__init__()
-        self.down = nn.Linear(dim, dim/8)
-        self.up = nn.Linear(dim // 8, dim)
+        self.down = nn.Linear(dim, dim // reduction_factor)
+        self.up = nn.Linear(dim // reduction_factor, dim)
         nn.init.kaiming_normal_(self.down.weight)
         nn.init.zeros_(self.up.weight)
 
@@ -44,8 +44,29 @@ class Adapter(nn.Module):
 
 def add_adapter_layers(model):
     for layer in model.transformer.h:
-        layer.attention.adapter = Adapter(layer.attention.embed_dim)
-        layer.add_module('adapter', layer.attention.adapter)  # 确保模块注册
+        # 获取隐藏维度
+        hidden_dim = layer.mlp.c_fc.weight.shape[1]
+
+        # 正确添加适配器模块
+        layer.register_module("adapter", Adapter(hidden_dim))
+
+        # 保存原始前向传播函数
+        original_forward = layer.forward
+
+        # 定义新的前向传播
+        def new_forward(self, hidden_states, *args, **kwargs):
+            # 原始前向传播
+            outputs = original_forward(hidden_states, *args, **kwargs)
+
+            # 在注意力之后添加适配器
+            attn_output = outputs[0]
+            adapted_output = self.adapter(attn_output)
+
+            # 返回修改后的输出
+            return (adapted_output,) + outputs[1:]
+
+        # 更新层的前向传播方法
+        layer.forward = new_forward
     return model
 
 

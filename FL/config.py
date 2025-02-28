@@ -1,7 +1,10 @@
 # LLM to use for training. Any Huggingface CausalLM model can be loaded here but we only test with GPT-2 Medium and Large.
 MODEL_NAME = "distilgpt2" # "gpt2-medium" "gpt2-large"
 # Batch size for training
-BATCH_SIZE = 32
+# BATCH_SIZE = 32
+BATCH_SIZE = 16
+GRADIENT_ACCUMULATION_STEPS = 2
+
 # Learnig rate for AdamW optimizer
 LEARNING_RATE = 3e-5
 # Percentage of duplicated samples among all clients dataset
