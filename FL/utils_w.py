@@ -270,6 +270,53 @@ def train_client(
     return total_train_loss
 
 
+def train_client_amp(
+        client_model,
+        client_data_loader,
+        client_id,
+        round,
+        sample_weights=None,
+):
+
+    client_optimizer = AdamW(client_model.parameters(), lr=LEARNING_RATE, weight_decay=0.01)
+
+    training_steps = EPOCHS * len(client_data_loader)
+    scheduler = get_linear_schedule_with_warmup(client_optimizer,
+                                                num_warmup_steps=100,
+                                                num_training_steps=training_steps)
+    scaler = torch.cuda.amp.GradScaler()
+
+    client_model.train()
+    total_train_loss = 0
+
+    for epoch in range(EPOCHS):
+        for batch_idx, (inputs, labels, weights) in enumerate(client_data_loader):
+            input_ids, labels = inputs.to(device), labels.to(device)
+            weights = torch.tensor(weights).to(device)
+
+            client_optimizer.zero_grad()
+            with torch.cuda.amp.autocast():
+                outputs = client_model(input_ids=input_ids, labels=labels)
+                loss = outputs[0]
+                if weights is not None:
+                    loss = (loss * weights).mean()
+            scaler.scale(loss).backward()
+            clip_grad_norm_(client_model.parameters(), 1.0) # Gradient clipping
+
+            scaler.step(client_optimizer)
+            scaler.update()
+            scheduler.step()
+
+            total_train_loss += loss.item()
+
+    total_train_loss /= (len(client_data_loader) * EPOCHS)
+
+    print(
+        f"\n\nClient {client_id} in round {round} has average training loss of {total_train_loss}"
+    )
+
+    return total_train_loss
+
 def compute_test_perplexity(model, test_data_loader):
     model.eval()
     model.to(device)
