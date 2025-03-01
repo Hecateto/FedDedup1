@@ -1,3 +1,4 @@
+from torch import nn
 from torch.utils.data import Dataset
 import torch
 import numpy as np
@@ -9,8 +10,8 @@ from transformers import get_linear_schedule_with_warmup, get_cosine_schedule_wi
 from torch.nn.utils import clip_grad_norm_
 from datasets import load_dataset, concatenate_datasets
 
-os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 device = "cpu"
 if torch.cuda.is_available():
     device = "cuda"
@@ -224,6 +225,8 @@ def train_client(
     for _ in range(last_epoch):
         client_scheduler.step()
 
+    loss_fct = nn.CrossEntropyLoss(reduction="none", ignore_index=100)
+
     for epoch in range(EPOCHS):
 
         epoch_loss = 0
@@ -233,20 +236,28 @@ def train_client(
             attn_masks = data[1].to(device)
 
             if sample_weights is not None:
-                batch_weights = torch.tensor(sample_weights[idx]).to(device)
+                batch_weights = torch.tensor(sample_weights[idx], dtype=torch.float32).to(device)
             else:
                 batch_weights = None
 
             client_model.zero_grad()
 
             outputs = client_model(
-                input_ids=input_ids, attention_mask=attn_masks, labels=input_ids
+                input_ids=input_ids, attention_mask=attn_masks, labels=input_ids, return_dict=True
             )
 
-            loss = outputs[0]
+            logits = outputs.logits
+            labels = input_ids
+            loss_per_token = loss_fct(logits.view(-1, logits.size(-1)), labels.view(-1))
+            loss_per_token = loss_per_token.view(input_ids.size(0), -1)
+            loss_per_token = loss_per_token * attn_masks
+            token_counts = attn_masks.sum(dim=1)
+            loss_per_sample = loss_per_token.sum(dim=1) / token_counts
 
             if batch_weights is not None:
-                loss = (loss * batch_weights).mean()
+                loss = (loss_per_sample * batch_weights).sum() / batch_weights.sum()
+            else:
+                loss = loss_per_sample.mean()
 
             batch_loss = loss.item()
             epoch_loss += batch_loss

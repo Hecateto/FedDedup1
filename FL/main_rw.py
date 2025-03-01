@@ -116,12 +116,13 @@ best_round = -1
 best_ppl = math.inf
 patience = 3
 
-client_sizes = [len(data) for data in client_data_list]
-total_size = sum(client_sizes)
+
 
 for round in range(ROUNDS):
 
     avg_loss = 0
+    client_sizes = [len(data) for data in client_data_list]
+    total_size = sum(client_sizes)
 
     # Train the clients
     for client in range(CLIENTS):
@@ -158,21 +159,43 @@ for round in range(ROUNDS):
     print("Average loss after round {} is {}\n".format(round, avg_loss))
 
     # Aggregate all client models and average them to get the new global model
-    global_state = deepcopy(model.state_dict())
+    # global_state = deepcopy(model.state_dict())
+    #
+    # start = time.time()
+    # for k in global_state.keys():
+    #     global_state[k] = sum(
+    #         torch.load(f"{MODEL_CACHE}/client_{i}_{DATASET}.pt")[k] * (client_sizes[i] / total_size)
+    #         for i in range(CLIENTS)
+    #     )
+    # end = time.time()
+    # print(f"Aggregation took {end - start} seconds in round {round} \n")
+    #
+    # model.load_state_dict(global_state)
+    # torch.save(
+    #     global_state,
+    #     f"{MODEL_CACHE}/global_{DATASET}.pt",
+    # )
+    model_state_dict = deepcopy(model.state_dict())
 
     start = time.time()
-    for k in global_state:
-        global_state[k] = sum(
-            torch.load(f"{MODEL_CACHE}/client_{i}_{DATASET}.pt")[k] * client_sizes[i] / total_size
-            for i in range(CLIENTS)
-        )
+    for i in range(CLIENTS):
+        client_state_dict = torch.load(
+            os.path.join(MODEL_CACHE, f"client_{i}_{DATASET}.pt")
+        )["model"]
+        for k in model_state_dict.keys():
+            if i == 0:
+                model_state_dict[k] = client_state_dict[k]
+            else:
+                model_state_dict[k] += client_state_dict[k]
+            if i == CLIENTS - 1:
+                model_state_dict[k] = torch.div(model_state_dict[k], CLIENTS)
     end = time.time()
     print(f"Aggregation took {end - start} seconds in round {round} \n")
 
-    model.load_state_dict(global_state)
+    model.load_state_dict(model_state_dict)
     torch.save(
-        global_state,
-        f"{MODEL_CACHE}/global_{DATASET}.pt",
+        model_state_dict,
+        os.path.join(MODEL_CACHE, f"global_{DATASET}.pt"),
     )
 
     # Evaluate the global model
