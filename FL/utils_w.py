@@ -209,7 +209,7 @@ def train_client(
     client_model.train()
     client_model.to(device)
 
-    client_optimizer = AdamW(client_model.parameters(), lr=LEARNING_RATE)
+    client_optimizer = AdamW(client_model.parameters(), lr=LEARNING_RATE, weight_decay=0.01)
 
     training_steps = ROUNDS * EPOCHS * len(client_data_loader)
     last_epoch = (round - 1) * EPOCHS * len(client_data_loader)
@@ -217,8 +217,7 @@ def train_client(
     client_scheduler = get_linear_schedule_with_warmup(
         client_optimizer,
         num_warmup_steps=warmup_steps,
-        num_training_steps=training_steps,
-        weight_decay=0.01
+        num_training_steps=training_steps
     )
 
     # dummy scheduler steps since for future rounds
