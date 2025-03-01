@@ -119,6 +119,9 @@ best_model = None
 best_loss = math.inf
 best_round = -1
 
+best_ppl = math.inf
+patience = 3
+
 for round in range(ROUNDS):
 
     avg_loss = 0
@@ -181,10 +184,26 @@ for round in range(ROUNDS):
         os.path.join(MODEL_CACHE, f"global_{DATASET}.pt"),
     )
 
-    if avg_loss < best_loss:
-        best_loss = avg_loss
+    # Evaluate the global model
+    # Early Stopping
+    current_ppl = compute_test_perplexity(model, DataLoader(
+        TextDataset(test_data, tokenizer),
+        batch_size=16
+    ))
+
+    print(f"Perplexity after round {round} is {current_ppl}")
+    if current_ppl < best_ppl:
+        best_ppl, best_round = current_ppl, round
         best_model = deepcopy(model.state_dict())
-        best_round = round
+        patience = 3
+        torch.save(model.state_dict(), f"{MODEL_PATH}/best_model_{DATASET}.pt")
+    else:
+        patience -= 1
+        if patience == 0:
+            print(f"Early stopping at round {round}")
+            break
+
+
 
 ############ Evaluate on test dataset ############
 

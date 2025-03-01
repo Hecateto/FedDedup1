@@ -10,7 +10,7 @@ LEARNING_RATE = 5e-5
 # Percentage of duplicated samples among all clients dataset
 DUPLICATE_RATE = 0.3 # between 0.0 and 1.0
 # Max. sequence length for input data
-MAX_SEQ_LEN = 256
+MAX_SEQ_LEN = 400
 # Number of epochs of local training
 EPOCHS = 3
 # No: of clients in FL training
