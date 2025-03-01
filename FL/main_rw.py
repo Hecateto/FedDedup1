@@ -79,29 +79,21 @@ client_data_list = []
 for data in client_data:
     client_data_list.append(list(data))
 
-############ EP-MPD Deduplication of datasets ############
+############ 不去重，分配权重（对数加权） ############
+from collections import defaultdict
+frequency_dict = defaultdict(int)
+for data in client_data_list:
+    for text in data:
+        frequency_dict[text] += 1
+epsilon = 1e-6
+weights = {text: 1 / (math.log(freq + 1) + epsilon) for text, freq in frequency_dict.items()}
 
-if USE_EPMPD:
 
-    if TYPE == 1:
-        eg_type = EgPsiType.TYPE1
-    elif TYPE == 2:
-        eg_type = EgPsiType.TYPE2
-    else:
-        raise Exception("Unknown EG PSI type")
+client_sample_weights = [
+    [weights.get(text, 1.0) for text in client_data_list[i]]
+    for i in range(CLIENTS)
+]
 
-    # First step is local deduplication by each client
-    for i in range(CLIENTS):
-        client_data_list[i] = list(set(client_data_list[i]))
-
-    # Next clients use EP-MPD
-    mpd = MultiPartyDeduplicator(client_data=client_data_list, data_type=EgPsiDataType.STR, eg_type=eg_type,
-                                 debug=False)
-    mpd.deduplicate()
-
-    # Client datasets are now deduplicated
-    for i in range(CLIENTS):
-        client_data_list[i] = mpd.get_client_dataset(i)
 
 client_datasets = [
     TextDataset(data=client_data_list[i], tokenizer=tokenizer)
