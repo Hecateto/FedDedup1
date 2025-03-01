@@ -1,3 +1,5 @@
+import types
+
 import torch
 import numpy as np
 import random
@@ -43,30 +45,33 @@ class Adapter(nn.Module):
 
 
 def add_adapter_layers(model):
-    for layer in model.transformer.h:
+    for i, layer in enumerate(model.transformer.h):
         # 获取隐藏维度
         hidden_dim = layer.mlp.c_fc.weight.shape[1]
 
         # 正确添加适配器模块
-        layer.register_module("adapter", Adapter(hidden_dim))
+        adapter_name = f"adapter_{i}"
+        adapter = Adapter(hidden_dim)
+        layer.add_module(adapter_name, adapter)
 
         # 保存原始前向传播函数
         original_forward = layer.forward
 
-        # 定义新的前向传播
-        def new_forward(self, hidden_states, *args, **kwargs):
-            # 原始前向传播
-            outputs = original_forward(hidden_states, *args, **kwargs)
+        # 使用闭包绑定当前参数
+        def create_forward(layer_instance, orig_forward, name):
+            def new_forward(hidden_states, *args, **kwargs):
+                outputs = orig_forward(hidden_states, *args, **kwargs)
+                attn_output = outputs[0]
+                adapted_output = getattr(layer_instance, name)(attn_output)
+                return (adapted_output,) + outputs[1:]
 
-            # 在注意力之后添加适配器
-            attn_output = outputs[0]
-            adapted_output = self.adapter(attn_output)
+            return new_forward
 
-            # 返回修改后的输出
-            return (adapted_output,) + outputs[1:]
-
-        # 更新层的前向传播方法
-        layer.forward = new_forward
+        # 生成新的前向传播方法
+        layer.forward = types.MethodType(
+            create_forward(layer, original_forward, adapter_name),
+            layer
+        )
     return model
 
 
@@ -75,7 +80,7 @@ tokenizer = GPT2Tokenizer.from_pretrained(
 )
 
 model = GPT2LMHeadModel.from_pretrained(MODEL_NAME)
-model = add_adapter_layers(model)
+# model = add_adapter_layers(model)
 model.resize_token_embeddings(len(tokenizer))
 model = model.to(device)
 
@@ -209,7 +214,7 @@ for round in range(ROUNDS):
     start = time.time()
     for k in global_state:
         global_state[k] = sum(
-            torch.load(f"{MODEL_CACHE}/client_{client}_{DATASET}.pt")[k] * client_sizes[client] / total_size
+            torch.load(f"{MODEL_CACHE}/client_{i}_{DATASET}.pt")[k] * client_sizes[i] / total_size
             for i in range(CLIENTS)
         )
     end = time.time()
@@ -227,6 +232,8 @@ for round in range(ROUNDS):
         TextDataset(test_data, tokenizer),
         batch_size=16
     ))
+
+    print(f"Perplexity after round {round} is {current_ppl}")
     if current_ppl < best_ppl:
         best_ppl, best_round = current_ppl, round
         best_model = deepcopy(model.state_dict())
@@ -262,5 +269,13 @@ test_ppl = compute_test_perplexity(model, DataLoader(
 ))
 
 print(f"Test Perplexity: {test_ppl:.2f}")
+
+
+
+
+
+
+
+
 
 
