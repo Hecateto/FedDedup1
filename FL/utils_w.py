@@ -3,7 +3,7 @@ import torch
 import numpy as np
 import csv
 import os
-from local_config import *
+from config import *
 from torch.optim import AdamW
 from transformers import get_linear_schedule_with_warmup
 from torch.nn.utils import clip_grad_norm_

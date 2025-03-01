@@ -14,7 +14,7 @@ import os
 import time
 
 from config import *
-from utils_w import TextDataset, train_client_amp  , compute_test_perplexity, get_text_dataset
+from utils_w import TextDataset, train_client, train_client_amp, compute_test_perplexity, get_text_dataset
 from copy import deepcopy
 
 os.environ["HF_HOME"] = CACHE_PATH
@@ -145,7 +145,7 @@ for round in range(ROUNDS):
         model.load_state_dict(torch.load(f"{MODEL_CACHE}/global_{DATASET}.pt"))
 
         start = time.time()
-        client_loss = train_client_amp(
+        client_loss = train_client(
             model,
             client_data_loaders[client],
             client,

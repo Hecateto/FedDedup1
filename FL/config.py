@@ -6,7 +6,7 @@ BATCH_SIZE = 16
 GRADIENT_ACCUMULATION_STEPS = 2
 
 # Learnig rate for AdamW optimizer
-LEARNING_RATE = 2e-5
+LEARNING_RATE = 5e-5
 # Percentage of duplicated samples among all clients dataset
 DUPLICATE_RATE = 0.3 # between 0.0 and 1.0
 # Max. sequence length for input data
