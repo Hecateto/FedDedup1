@@ -282,7 +282,7 @@ def train_client_amp(
 
     training_steps = EPOCHS * len(client_data_loader)
     scheduler = get_linear_schedule_with_warmup(client_optimizer,
-                                                num_warmup_steps=100,
+                                                num_warmup_steps=min(100, int(training_steps * 0.1)),
                                                 num_training_steps=training_steps)
     scaler = torch.cuda.amp.GradScaler()
 
@@ -296,12 +296,19 @@ def train_client_amp(
 
             client_optimizer.zero_grad()
             with torch.cuda.amp.autocast():
-                outputs = client_model(input_ids=input_ids, labels=labels)
-                loss = outputs[0]
+                logits = client_model(input_ids=input_ids).logits
+                loss_per_sample = torch.nn.functional.cross_entropy(logits.view(-1, logits.size(-1)), labels.view(-1), reduction='none')
+                loss_per_sample = loss_per_sample.view(labels.size()).mean(dim=1)
                 if weights is not None:
-                    loss = (loss * weights).mean()
+                    loss = (loss_per_sample * weights).mean()
+                else:
+                    loss = loss_per_sample.mean()
+                # outputs = client_model(input_ids=input_ids, labels=labels)
+                # loss = outputs[0]
+                # if weights is not None:
+                #     loss = (loss * weights).mean()
             scaler.scale(loss).backward()
-            clip_grad_norm_(client_model.parameters(), 1.0) # Gradient clipping
+            clip_grad_norm_(client_model.parameters(), 5.0) # Gradient clipping
 
             scaler.step(client_optimizer)
             scaler.update()

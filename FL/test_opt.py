@@ -30,51 +30,6 @@ device = "cpu"
 if torch.cuda.is_available():
     device = "cuda"
 
-
-# 添加适配器
-class Adapter(nn.Module):
-    def __init__(self, dim, reduction_factor=8):
-        super().__init__()
-        self.down = nn.Linear(dim, dim // reduction_factor)
-        self.up = nn.Linear(dim // reduction_factor, dim)
-        nn.init.kaiming_normal_(self.down.weight)
-        nn.init.zeros_(self.up.weight)
-
-    def forward(self, x):
-        return x + self.up(nn.GELU()(self.down(x)))
-
-
-def add_adapter_layers(model):
-    for i, layer in enumerate(model.transformer.h):
-        # 获取隐藏维度
-        hidden_dim = layer.mlp.c_fc.weight.shape[1]
-
-        # 正确添加适配器模块
-        adapter_name = f"adapter_{i}"
-        adapter = Adapter(hidden_dim)
-        layer.add_module(adapter_name, adapter)
-
-        # 保存原始前向传播函数
-        original_forward = layer.forward
-
-        # 使用闭包绑定当前参数
-        def create_forward(layer_instance, orig_forward, name):
-            def new_forward(hidden_states, *args, **kwargs):
-                outputs = orig_forward(hidden_states, *args, **kwargs)
-                attn_output = outputs[0]
-                adapted_output = getattr(layer_instance, name)(attn_output)
-                return (adapted_output,) + outputs[1:]
-
-            return new_forward
-
-        # 生成新的前向传播方法
-        layer.forward = types.MethodType(
-            create_forward(layer, original_forward, adapter_name),
-            layer
-        )
-    return model
-
-
 tokenizer = GPT2Tokenizer.from_pretrained(
     MODEL_NAME, bos_token=BOS_TOKEN, eos_token=EOS_TOKEN, pad_token=PAD_TOKEN
 )
