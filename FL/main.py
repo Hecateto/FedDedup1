@@ -124,6 +124,9 @@ best_round = -1
 best_ppl = math.inf
 patience = 3
 
+client_sizes = [len(data) for data in client_data_list]
+total_size = sum(client_sizes)
+
 for round in range(ROUNDS):
 
     avg_loss = 0
