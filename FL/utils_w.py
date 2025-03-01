@@ -5,7 +5,7 @@ import csv
 import os
 from config import *
 from torch.optim import AdamW
-from transformers import get_linear_schedule_with_warmup
+from transformers import get_linear_schedule_with_warmup, get_cosine_schedule_with_warmup
 from torch.nn.utils import clip_grad_norm_
 from datasets import load_dataset, concatenate_datasets
 
@@ -214,10 +214,10 @@ def train_client(
     training_steps = ROUNDS * EPOCHS * len(client_data_loader)
     last_epoch = (round - 1) * EPOCHS * len(client_data_loader)
     warmup_steps = int(training_steps * 0.1)
-    client_scheduler = get_linear_schedule_with_warmup(
+    client_scheduler = get_cosine_schedule_with_warmup(
         client_optimizer,
         num_warmup_steps=warmup_steps,
-        num_training_steps=training_steps
+        num_training_steps=training_steps,
     )
 
     # dummy scheduler steps since for future rounds

@@ -1,22 +1,22 @@
 # LLM to use for training. Any Huggingface CausalLM model can be loaded here but we only test with GPT-2 Medium and Large.
 MODEL_NAME = "distilgpt2" # "gpt2-medium" "gpt2-large"
 # Batch size for training
-# BATCH_SIZE = 32
-BATCH_SIZE = 16
-GRADIENT_ACCUMULATION_STEPS = 2
+# BATCH_SIZE = 8
+BATCH_SIZE = 32
+GRADIENT_ACCUMULATION_STEPS = 1
 
 # Learnig rate for AdamW optimizer
 LEARNING_RATE = 5e-5
 # Percentage of duplicated samples among all clients dataset
 DUPLICATE_RATE = 0.3 # between 0.0 and 1.0
 # Max. sequence length for input data
-MAX_SEQ_LEN = 400
+MAX_SEQ_LEN = 256
 # Number of epochs of local training
-EPOCHS = 3
+EPOCHS = 4
 # No: of clients in FL training
 CLIENTS = 2
 # No: of rounds of FL training
-ROUNDS = 15
+ROUNDS = 10
 # Special end of sentence, beginning of sentence, and pad tokens. This depends on the chosen Huggingface model. Below are the tokens for GPT-2 models.
 EOS_TOKEN = "<|endoftext|>"
 BOS_TOKEN = "<|startoftext|>"
@@ -33,7 +33,7 @@ SEED = 123
 # If True, then the EP-MPD deduplication will be applied to client datasets before FL training.
 # This will result in 0% duplication and will override the effects of DUPLICATE_RATE.
 # Setting this to true will effectively result in DUPLICATE_RATE = 0.0
-USE_EPMPD = True
+USE_EPMPD = False
 TYPE = 1 # Type can be 1 or 2
 
 # Other params
