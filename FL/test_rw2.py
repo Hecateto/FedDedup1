@@ -215,11 +215,11 @@ with torch.no_grad():
     inputs = tokenizer(BOS_TOKEN, return_tensors="pt").to(device)
     outputs = model.generate(
         **inputs,
-        max_length=50,
+        max_length=128,
         num_beams=5,
         no_repeat_ngram_size=2,
         early_stopping=True,
-        num_return_sequences=5,
+        num_return_sequences=3,
     )
     print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 

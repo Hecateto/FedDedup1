@@ -14,6 +14,8 @@ from utils_w import TextDataset, train_client, compute_test_perplexity, get_text
 from copy import deepcopy
 
 os.environ["HF_HOME"] = CACHE_PATH
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+
 
 # set all seeds
 torch.manual_seed(SEED)
@@ -161,27 +163,21 @@ for round in range(ROUNDS):
     print("Average loss after round {} is {}\n".format(round, avg_loss))
 
     # Aggregate all client models and average them to get the new global model
-    model_state_dict = deepcopy(model.state_dict())
+    global_state = deepcopy(model.state_dict())
 
     start = time.time()
-    for i in range(CLIENTS):
-        client_state_dict = torch.load(
-            os.path.join(MODEL_CACHE, f"client_{i}_{DATASET}.pt")
-        )["model"]
-        for k in model_state_dict.keys():
-            if i == 0:
-                model_state_dict[k] = client_state_dict[k]
-            else:
-                model_state_dict[k] += client_state_dict[k]
-            if i == CLIENTS - 1:
-                model_state_dict[k] = torch.div(model_state_dict[k], CLIENTS)
+    for k in global_state:
+        global_state[k] = sum(
+            torch.load(f"{MODEL_CACHE}/client_{i}_{DATASET}.pt")[k] * client_sizes[i] / total_size
+            for i in range(CLIENTS)
+        )
     end = time.time()
     print(f"Aggregation took {end - start} seconds in round {round} \n")
 
-    model.load_state_dict(model_state_dict)
+    model.load_state_dict(global_state)
     torch.save(
-        model_state_dict,
-        os.path.join(MODEL_CACHE, f"global_{DATASET}.pt"),
+        global_state,
+        f"{MODEL_CACHE}/global_{DATASET}.pt",
     )
 
     # Evaluate the global model
@@ -220,11 +216,11 @@ generated = generated.to(device)
 # get ouputs using beam search
 sample_outputs = model.generate(
     generated,
-    max_new_tokens=50,
+    max_new_tokens=128,
     num_beams=5,
     no_repeat_ngram_size=2,
     early_stopping=True,
-    num_return_sequences=5,
+    num_return_sequences=3,
 )
 
 for i, sample_output in enumerate(sample_outputs):
