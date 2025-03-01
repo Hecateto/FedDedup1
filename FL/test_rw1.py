@@ -7,7 +7,7 @@ import math
 
 from torch import nn
 from torch.optim import AdamW
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
+from transformers import GPT2LMHeadModel, GPT2Tokenizer, GPT2Config
 from torch.utils.data import DataLoader, random_split
 from ep_mpd import MultiPartyDeduplicator, EgPsiType, EgPsiDataType
 import os
@@ -34,7 +34,13 @@ tokenizer = GPT2Tokenizer.from_pretrained(
     MODEL_NAME, bos_token=BOS_TOKEN, eos_token=EOS_TOKEN, pad_token=PAD_TOKEN
 )
 
-model = GPT2LMHeadModel.from_pretrained(MODEL_NAME)
+config = GPT2Config.from_pretrained(MODEL_NAME)
+config.attn_pdrop = 0.1
+config.resid_pdrop = 0.1
+config.embedded_dropout_prob = 0.1
+
+
+model = GPT2LMHeadModel.from_pretrained(MODEL_NAME, config=config)
 # model = add_adapter_layers(model)
 model.resize_token_embeddings(len(tokenizer))
 model = model.to(device)

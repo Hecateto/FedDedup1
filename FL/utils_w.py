@@ -11,7 +11,6 @@ from datasets import load_dataset, concatenate_datasets
 
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 
-
 device = "cpu"
 if torch.cuda.is_available():
     device = "cuda"
@@ -219,6 +218,7 @@ def train_client(
         client_optimizer,
         num_warmup_steps=warmup_steps,
         num_training_steps=training_steps,
+        weight_decay=0.01
     )
 
     # dummy scheduler steps since for future rounds
@@ -277,7 +277,6 @@ def train_client_amp(
         round,
         sample_weights=None,
 ):
-
     client_optimizer = AdamW(client_model.parameters(), lr=LEARNING_RATE, weight_decay=0.01)
 
     training_steps = ROUNDS * EPOCHS * len(client_data_loader)
@@ -303,7 +302,8 @@ def train_client_amp(
             client_optimizer.zero_grad()
             with torch.amp.autocast('cuda'):
                 logits = client_model(input_ids=input_ids).logits
-                loss_per_sample = torch.nn.functional.cross_entropy(logits.view(-1, logits.size(-1)), labels.view(-1), reduction='none')
+                loss_per_sample = torch.nn.functional.cross_entropy(logits.view(-1, logits.size(-1)), labels.view(-1),
+                                                                    reduction='none')
                 loss_per_sample = loss_per_sample.view(labels.size()).mean(dim=1)
                 if weights is not None:
                     loss = (loss_per_sample * weights).mean()
@@ -317,7 +317,7 @@ def train_client_amp(
             epoch_loss += loss.item()
 
             loss.backward()
-            clip_grad_norm_(client_model.parameters(), 1.0) # Gradient clipping
+            clip_grad_norm_(client_model.parameters(), 1.0)  # Gradient clipping
             client_optimizer.step()
             scheduler.step()
 
@@ -331,6 +331,7 @@ def train_client_amp(
     )
 
     return total_train_loss
+
 
 def compute_test_perplexity(model, test_data_loader):
     model.eval()
