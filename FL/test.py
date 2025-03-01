@@ -206,7 +206,7 @@ prompt = BOS_TOKEN
 generated = torch.tensor(tokenizer.encode(prompt)).unsqueeze(0)
 generated = generated.to(device)
 
-# get ouputs using beam search
+# get outputs using beam search
 sample_outputs = model.generate(
     generated,
     max_new_tokens=50,

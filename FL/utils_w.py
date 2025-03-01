@@ -280,22 +280,28 @@ def train_client_amp(
 
     client_optimizer = AdamW(client_model.parameters(), lr=LEARNING_RATE, weight_decay=0.01)
 
-    training_steps = EPOCHS * len(client_data_loader)
+    training_steps = ROUNDS * EPOCHS * len(client_data_loader)
     scheduler = get_linear_schedule_with_warmup(client_optimizer,
                                                 num_warmup_steps=min(100, int(training_steps * 0.1)),
                                                 num_training_steps=training_steps)
-    scaler = torch.cuda.amp.GradScaler()
+    last_epoch = (round - 1) * EPOCHS * len(client_data_loader)
 
     client_model.train()
+    client_model.to(device)
+
+    for _ in range(last_epoch):
+        scheduler.step()
+
     total_train_loss = 0
 
     for epoch in range(EPOCHS):
+        epoch_loss = 0
         for batch_idx, (inputs, labels, weights) in enumerate(client_data_loader):
             input_ids, labels = inputs.to(device), labels.to(device)
             weights = torch.tensor(weights).to(device)
 
             client_optimizer.zero_grad()
-            with torch.cuda.amp.autocast():
+            with torch.amp.autocast('cuda'):
                 logits = client_model(input_ids=input_ids).logits
                 loss_per_sample = torch.nn.functional.cross_entropy(logits.view(-1, logits.size(-1)), labels.view(-1), reduction='none')
                 loss_per_sample = loss_per_sample.view(labels.size()).mean(dim=1)
@@ -307,16 +313,18 @@ def train_client_amp(
                 # loss = outputs[0]
                 # if weights is not None:
                 #     loss = (loss * weights).mean()
-            scaler.scale(loss).backward()
-            clip_grad_norm_(client_model.parameters(), 5.0) # Gradient clipping
 
-            scaler.step(client_optimizer)
-            scaler.update()
+            epoch_loss += loss.item()
+
+            loss.backward()
+            clip_grad_norm_(client_model.parameters(), 1.0) # Gradient clipping
+            client_optimizer.step()
             scheduler.step()
 
-            total_train_loss += loss.item()
+        avg_epoch_loss = epoch_loss / len(client_data_loader)
+        total_train_loss += avg_epoch_loss
 
-    total_train_loss /= (len(client_data_loader) * EPOCHS)
+    total_train_loss /= EPOCHS
 
     print(
         f"\n\nClient {client_id} in round {round} has average training loss of {total_train_loss}"
